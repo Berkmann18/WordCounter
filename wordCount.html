@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Word Count</title>
+	<meta charset="UTF-8" />
+	<meta name="description' content="Word counter with stats and file saving support." />
+	<meta name="author" content="Maximilian Berkmann" />
+	<meta name="email" content="zbvd647@live.rhul.ac.uk" />
+	<meta name="copyright" content="" />
+	<script>
+		function $(selector){
+			return new elm(selector).node;
+		}
+		function elm(selector){
+			if(selector[0]=="#") this.node = document.querySelector(selector)||document.getElementById(selector.slice(1, selector.length));//id
+			else if(selector[0]==".") this.node = document.querySelector(selector)||document.getElementByClassName(selector.slice(1, selector.length));//class
+			else if(selector[0]=="*") this.node = document.querySelectorAll(selector.slice(1, selector.length))||document.getElementsByTagName(selector.slice(1, selector.length));//node array
+			else this.node = document.querySelector(selector);
+		}
+		
+		var err = 0, hum = 0, t0 = 0, t1 = 0, dt = 0, cost = 18, dE = new Array(), dH = new Array();//cost per lecture: £0.30/min, .005p/s
+		function count(word){
+			if(word=='err'){
+				err++;
+				dE.push(getT()+","+err);
+			}else if(word=='hum'){
+				hum++;
+				dH.push(getT()+", "+hum);
+			}
+			$("#err").innerText = err;
+			$("#hum").innerText = hum;
+			if(t0==0) startTimer();//as an update
+			else stopTimer();
+		}
+		
+		function keyboardCode(keyStroke){
+			var keyNum = !document.all? keyStroke.which: event.keyCode;
+			var char = String.fromCharCode(keyNum).toLowerCase();
+			if(char=='e') count('err');
+			else if(char=='h') count('hum');
+			else if(keyNum==32) t0==0? startTimer(): stopTimer();
+			else if(keyNum==13) get();
+			else if(char=='r') reset();
+		}
+		
+		document.onkeypress = keyboardCode;
+		function startTimer(){
+			t0 = new Date().getMinutes()*60+new Date().getSeconds();
+		}
+		function stopTimer(){
+			t1 = new Date().getMinutes()*60+new Date().getSeconds();
+			dt = t1-t0;
+			$("#t").innerText = Math.floor(dt/60)+"min "+(dt%60)+"s";
+			fillRes();
+		}
+		function fillRes(){
+			$("#epm").innerText = (err/Math.floor(dt/60)).toFixed(3);
+			$("#eps").innerText = (err/dt).toFixed(3);
+			$("#hpm").innerText = (hum/Math.floor(dt/60)).toFixed(3);
+			$("#hps").innerText = (hum/dt).toFixed(3);
+			$("#ceps").innerText = ($("#eps").innerText*cost/3600).toFixed(2);
+			$("#cepm").innerText = ($("#epm").innerText*cost/60).toFixed(2);
+			$("#chps").innerText = ($("#hps").innerText*cost/3600).toFixed(2);
+			$("#chpm").innerText = ($("#hpm").innerText*cost/60).toFixed(2);
+			$("#rate").innerText = (err/hum).toFixed(3);
+			$("#tps").innerText = (parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText)).toFixed(3);
+			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toFixed(3);
+			$("#tcps").innerText = (parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText)).toFixed(2);
+			$("#tcpm").innerText = (parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText)).toFixed(2);
+			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm"]);
+			if($("#eps").innerText>3 || $("#hps").innerText>3) $("#cmt").innerText = "Wow !!";
+			if(err>=100 && err>hum) $("#cmt").innerHTML = "<b style='color: #c00;'>Errquake !!!</b>";
+			if(hum>=100 && hum>err) $("#cmt").innerHTML = "<b style='color: #c00;'>Humquake !!!</b>";
+			if(err>=600) $("#cmt").innerHTML = "<b style='color: #f00;'>Holly Fucking Shit m8 !!!</b>";
+			if(hum>=600) $("#cmt").innerHTML = "<b style='color: #f00;'>Ooh My Gaaad !!!</b>";
+			if(err<=1 || hum<=1)  $("#cmt").innerText = "";
+			if($("#epm").innerText>300 || $("#hpm").innerText>300) $("#cmt").innerHTML = "<b style='color: #fc0;'><i>DAMMNN !!!</i></b>";
+		}
+		function store(){
+			if(!localStorage["errCount"] && !localStorage["humCount"]){
+				localStorage["errCount"] = JSON.stringify(dE);
+				localStorage["humCount"] = JSON.stringify(dH);
+			}
+			if(localStorage["errCount"]) dE = JSON.parse(localStorage["errCount"]);
+			else localStorage["errCount"] = JSON.stringify(dE);
+			if(localStorage["humCount"]) dH = JSON.parse(localStorage["humCount"]);
+			else localStorage["humCount"] = JSON.stringify(dH);
+		}
+		function get(){
+			localStorage["errCount"] = JSON.stringify(localStorage["errCount"]+", "+toList(dE, "text"));
+			localStorage["humCount"] = JSON.stringify(localStorage["humCount"]+", "+toList(dH, "text"));
+			console.info("Err count: "+console.table(dE));
+			console.info("Hum count: "+console.table(dH));
+			/*send = confirm("Would you like to send the data by email ?");
+			if(send){
+				location.href = "mailto: maxieberkmann@gmail.com?subject=CS1870:%20Err/hum%20data%20record&body=Err%0D"+toTxt(dE)+"%0DHum:%0D"+toTxt(dH)+"&from=WordCount@html.w3";
+				sendEmail("zbvd647@live.rhul.ac.uk", "Errs/Hum logs", toList(dE)+"\n"+toList(dH));
+				//if(ActiveXObject) AutoMail("maxieberkmann@gmail", "Errs/Hum log", toList(dE)+"\n"+toList(dH));
+			}*/
+			console.clear();
+			console.info("Err:");
+			list(dE);
+			console.info("Hum:");
+			list(dH);
+			save("<!doctype html>\n<head>\n\t<title>Err log</title>\n\t<meta charset='UTF-8' />\n\t<meta name='description' content='Log on the number of \'err\' said by Dr Sarah Bernadini.' />\n\t<meta name='generator' content='wordCount.html' />\n\t<meta name='published' content='"+getD()+"' />\n\t<meta name='author' content='Maximilian Berkmann' />\n\t<meta name='email' content='zbvd647@live.rhul.ac.uk' />\n\t<style>\n\t*{\n\t\tfont-family: Calibrie, Verdana, Neuropol;\n\t}\n\t</style>\n</head>\n<body>\n"+toList(dE, "html")+"\n</body>\n</html>", "err-log-"+getD()+".html")
+			save("<!doctype html>\n<head>\n\t<title>Hum log</title>\n\t<meta charset='UTF-8' />\n\t<meta name='description' content='Log on the number of \'hum\' said by Dr Sarah Bernadini.' />\n\t<meta name='generator' content='wordCount.html' />\n\t<meta name='published' content='"+getD()+"' />\n\t<meta name='author' content='Maximilian Berkmann' />\n\t<meta name='email' content='zbvd647@live.rhul.ac.uk' />\n\t<style>\n\t*{\n\t\tfont-family: Calibrie, Verdana, Neuropol;\n\t}\n\t</style>\n</head>\n<body>\n"+toList(dH, "html")+"\n</body>\n</html>", "hum-log-"+getD()+".html")
+		}
+		function reset(){
+			localStorage["errCount"] = "";
+			localStorage["humCount"] = "";
+		}
+		function getT(){//hh:mm:ss
+			var d = new Date();
+			return to2Digits(d.getHours())+":"+to2Digits(d.getMinutes())+":"+to2Digits(d.getSeconds());
+		}
+		function getD(){//ddMm
+			var m = ["Jan", "Feb", "March", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], d = new Date();
+			return d.getDate()+m[d.getMonth()];
+		}
+		function sendEmail(to, subject, content, by, cc, bcc){
+			location.href = "mailto: "+(to||by)+"?from="+(by||"Unknown@secret.com")+"&subject="+(subject||"")+"&body="+(escape(content)||"")+"&method=post";
+		}
+		function list(a){//console listing
+			for(i=0; i<a.length; i++) console.log(a[i]);
+		}
+		function toList(a, type){//listing for file
+			var l = "", c=(type=="html")? "<br />": ((type=="text")? ", ": "\n");
+			for(i=0; i<a.length; i++) l+=a[i]+c;
+			return l;
+		}
+		function save(txt, name){
+			var txtfile = new Blob([txt], {type:'text/'+(name.slice(0, name.lastIndexOf("."))||"html")});
+
+			var dlLink = document.createElement("a");
+			dlLink.download = name;
+			dlLink.innerHTML = "Download File";
+			if(window.webkitURL != null) dlLink.href = window.webkitURL.createObjectURL(txtfile);//Chrome allows the link to be clicked without actually adding it to the DOM.
+			else{//Firefox requires the link to be added to the DOM before it can be clicked.
+				dlLink.href = window.URL.createObjectURL(txtfile);
+				dlLink.onclick = function(evt){
+					document.body.removeChild(evt.target);
+				};
+				dlLink.style.display = "none";
+				document.body.appendChild(dlLink);
+			}
+			dlLink.click();
+		}
+		function verif(ids){//verify the value of the elements with the corresponding ids and change into an acceptable value if not already
+			for(i=0; i<ids.length; i++){
+				if($(ids[i]).innerText==Infinity) $(ids[i]).innerText = 0;
+				if($(ids[i]).innerText==NaN) $(ids[i]).innerText= "N/A";
+			}
+		}
+		function to2Digits(i){
+			return i<10? "0"+i: i;
+		}
+		/* Deprecated features
+		function passiveSave(w, data, proper){
+			window.location = proper? "data:text/html,<style>*{font-family: Calibrie, Neuropol, Verdana;}</style><h1>"+w+"</h1>"+data:"data:text/txt,"+w+": "+data;
+		}
+		function check(data, toHTML){
+			var h = (data==dE)? "Err log": (data==dH? "Hum log": "Log");
+			if(toHTML) passiveSave(h+":", toList(data, "html"), true);
+			else passiveSave(h, toList(dE, "text"));
+		}
+		//http://javascript.keithjoubert.com/send-automatic-email.htm
+		//usage: AutoMail('someone@somewhere.com','Test AutoMail',bodyT,atPath);
+		function AutoMail(sendto,subject,bodytxt,attach){
+			var theApp=new ActiveXObject("Outlook.Application");
+			var theNameSpace=theApp.GetNameSpace("MAPI").CurrentUser, theMailItem=theApp.CreateItem(0);
+			theMailItem.Recipients.Add(sendto);
+			theMailItem.Subject=(subject);
+			theMailItem.Body=(bodytxt);
+			if(attach) theMailItem.Attachments.Add(attach);
+			theMailItem.Send;
+			theNameSpace.Logoff;
+			theApp=null;
+		}
+		
+		function toTxt(arr){
+			var txt = "";
+			for(i=0; i<arr.length; i++) txt+=arr[i]+"%0D";
+			return txt;
+		}
+		*/
+	</script>
+	<style>
+		* {
+			font-family: Neuropol, Calibrie, Verdana;
+			font-size: 4ex;
+		}
+		#res {
+			border: 1px dotted #000;
+			position: absolute;
+			top: 0;
+			right: 0;
+			font-size: 1ex;
+		}
+		#err, #hum, #eps, #epm, #hps, #hpm, #tps, #tpm {
+			color: red;
+		}
+		#cmt {
+			font-size: 2ex;
+		}
+		sub {
+			font-size: 1ex;
+		}
+	</style>
+</head>
+<body>
+	<input type="button" value="Err" onClick="count('err')" /><span id="err"></span> errs<br />
+	<input type="button" value="Hum" onClick="count('hum')" /><span id="hum"></span> hums<br />
+	Time: <span id="t">0min 0s</span>
+	<div id="res">
+		<span id="eps"></span> err/s (&pound;<span id="ceps"></span>/s)<br />
+		<span id="epm"></span> err/min (&pound;<span id="cepm"></span>/min)<br />
+		<span id="hps"></span> hum/s (&pound;<span id="chps"></span>/s)<br />
+		<span id="hpm"></span> hum/min (&pound;<span id="chpm"></span>/min)<br />
+		Err/hum rate: <span id="rate"></span><br />
+		&Sigma;<sub>err/hum</sub>(ps) <span id="tps"></span>(&pound;<span id="tcps"></span>/s)<br />
+		&Sigma;<sub>err/hum</sub>(pm) <span id="tpm"></span>(&pound;<span id="tcpm"></span>/min)<br />
+	</div><br /><br />
+	<div id="cmt"></div>
+</body>
+</html>
