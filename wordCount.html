@@ -54,27 +54,36 @@
 			fillRes();
 		}
 		function fillRes(){
-			$("#epm").innerText = (err/Math.floor(dt/60)).toFixed(3);
-			$("#eps").innerText = (err/dt).toFixed(3);
-			$("#hpm").innerText = (hum/Math.floor(dt/60)).toFixed(3);
-			$("#hps").innerText = (hum/dt).toFixed(3);
-			$("#ceps").innerText = ($("#eps").innerText*cost/3600).toFixed(2);
-			$("#cepm").innerText = ($("#epm").innerText*cost/60).toFixed(2);
-			$("#chps").innerText = ($("#hps").innerText*cost/3600).toFixed(2);
-			$("#chpm").innerText = ($("#hpm").innerText*cost/60).toFixed(2);
-			$("#rate").innerText = (err/hum).toFixed(3);
-			$("#tps").innerText = (parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText)).toFixed(3);
-			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toFixed(3);
-			$("#tcps").innerText = (parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText)).toFixed(2);
-			$("#tcpm").innerText = (parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText)).toFixed(2);
+			$("#epm").innerText = (err/Math.floor(dt/60)).toPrecision(3);
+			$("#eps").innerText = (err/dt).toPrecision(3);
+			$("#hpm").innerText = (hum/Math.floor(dt/60)).toPrecision(3);
+			$("#hps").innerText = (hum/dt).toPrecision(3);
+			$("#ceps").innerText = ($("#eps").innerText*cost/3600).toPrecision(2);
+			$("#cepm").innerText = ($("#epm").innerText*cost/60).toPrecision(2);
+			$("#chps").innerText = ($("#hps").innerText*cost/3600).toPrecision(2);
+			$("#chpm").innerText = ($("#hpm").innerText*cost/60).toPrecision(2);
+			$("#rate").innerText = (err/hum).toPrecision(3);
+			$("#tps").innerText = (parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText)).toPrecision(3);
+			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toPrecision(3);
+			$("#tcps").innerText = (parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText)).toPrecision(2);
+			$("#tcpm").innerText = (parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText)).toPrecision(2);
 			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm"]);
 			if($("#eps").innerText>3 || $("#hps").innerText>3) $("#cmt").innerText = "Wow !!";
-			if(err>=100 && err>hum) $("#cmt").innerHTML = "<b style='color: #c00;'>Errquake !!!</b>";
-			if(hum>=100 && hum>err) $("#cmt").innerHTML = "<b style='color: #c00;'>Humquake !!!</b>";
-			if(err>=600) $("#cmt").innerHTML = "<b style='color: #f00;'>Holly Fucking Shit m8 !!!</b>";
-			if(hum>=600) $("#cmt").innerHTML = "<b style='color: #f00;'>Ooh My Gaaad !!!</b>";
+			if(err>=100 && err>=hum) $("#cmt").innerHTML = "<b style='color: #400000;'>Errquake !!!</b>";
+			if(hum>=100 && hum>err) $("#cmt").innerHTML = "<b style='color: #400000;'>Humquake !!!</b>";
+			if(err>=200 && err>=hum) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=30>Errquake !!!</marquee></b>";
+			if(hum>=200 && hum>err) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=30>Humquake !!!</marquee></b>";
+			if($("#epm").innerText>300 || $("#hpm").innerText>300) $("#cmt").innerHTML = $("#cmt").innerHTML+"<br /><b style='color: #fc0;'><i>DAMMNN !!!</i></b>";
+			if(err>=300 || hum>=300) $("#cmt").innerHTML = "<b style='color: #c00000;'>Wuut !</b>";
+			if(err>=400 || hum>=400) $("#cmt").innerHTML = "<b style='color: #c00000;'><marquee scrollamount=50>WTF !!</marquee></b>";
+			if(err>=500 || hum>=500) $("#cmt").innerHTML = "<b style='color: #f00;'><span>Wait</span>... Wuut !</b>";
+			if(err>=600 && err>=hum) $("#cmt").innerHTML = "<b style='color: #f04000;'>Holly Fucking <i>Err</i>Shit m8 !!!</b>";
+			if(hum>=600 && hum>err) $("#cmt").innerHTML = "<b style='color: #f04000;'>H<i>um</i>olly Fucking Shit m8 !!!</b>";
+			if(err>=600 || hum>=600) $("#cmt").innerHTML = "<b style='color: #f08000;'>Ooh My Gaaad !!!</b>";
+			if(err>=700 || hum>=700) $("#cmt").innerHTML = "<b style='color: #f0c000;'>What The Actual <u>Fuck</u>!</b>";
+			if(err>=1e3 && err>=hum) $("#cmt").innerHTML = "<b style='color: #ff0;'>Err God</b>";
+			if(hum>=1e3 && hum>err) $("#cmt").innerHTML = "<b style='color: #ff0;'>Hum God</b>";
 			if(err<=1 || hum<=1)  $("#cmt").innerText = "";
-			if($("#epm").innerText>300 || $("#hpm").innerText>300) $("#cmt").innerHTML = "<b style='color: #fc0;'><i>DAMMNN !!!</i></b>";
 		}
 		function store(){
 			if(!localStorage["errCount"] && !localStorage["humCount"]){
