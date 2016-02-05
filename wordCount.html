@@ -67,12 +67,13 @@
 			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toPrecision(3);
 			$("#tcps").innerText = (parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText)).toPrecision(2);
 			$("#tcpm").innerText = (parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText)).toPrecision(2);
-			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm"]);
+			$("#sigma").innerText = err+hum;
+			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm", "#sigma"]);
 			if($("#eps").innerText>3 || $("#hps").innerText>3) $("#cmt").innerText = "Wow !!";
 			if(err>=100 && err>=hum) $("#cmt").innerHTML = "<b style='color: #400000;'>Errquake !!!</b>";
 			if(hum>=100 && hum>err) $("#cmt").innerHTML = "<b style='color: #400000;'>Humquake !!!</b>";
-			if(err>=200 && err>=hum) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=30>Errquake !!!</marquee></b>";
-			if(hum>=200 && hum>err) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=30>Humquake !!!</marquee></b>";
+			if(err>=200 && err>=hum) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=40>Errquake !!!</marquee></b>";
+			if(hum>=200 && hum>err) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=40>Humquake !!!</marquee></b>";
 			if($("#epm").innerText>300 || $("#hpm").innerText>300) $("#cmt").innerHTML = $("#cmt").innerHTML+"<br /><b style='color: #fc0;'><i>DAMMNN !!!</i></b>";
 			if(err>=300 || hum>=300) $("#cmt").innerHTML = "<b style='color: #c00000;'>Wuut !</b>";
 			if(err>=400 || hum>=400) $("#cmt").innerHTML = "<b style='color: #c00000;'><marquee scrollamount=50>WTF !!</marquee></b>";
@@ -157,7 +158,8 @@
 		function verif(ids){//verify the value of the elements with the corresponding ids and change into an acceptable value if not already
 			for(i=0; i<ids.length; i++){
 				if($(ids[i]).innerText==Infinity) $(ids[i]).innerText = 0;
-				if($(ids[i]).innerText==NaN) $(ids[i]).innerText= "N/A";
+				if($(ids[i]).innerText==NaN) $(ids[i]).innerText = "N/A";
+				if($(ids[i]).innerText.indexOf('.')>-1 && $(ids[i]).innerText.slice($(ids[i]).innerText.indexOf(".")+1, $(ids[i]).innerText.length).length>=3) $(ids[i]).innerText = parseInt($(ids[i]).innerText).toPrecision(2);
 			}
 		}
 		function to2Digits(i){
@@ -205,7 +207,7 @@
 			right: 0;
 			font-size: 1ex;
 		}
-		#err, #hum, #eps, #epm, #hps, #hpm, #tps, #tpm {
+		#err, #hum, #eps, #epm, #hps, #hpm, #tps, #tpm, #sigma {
 			color: red;
 		}
 		#cmt {
@@ -226,8 +228,9 @@
 		<span id="hps"></span> hum/s (&pound;<span id="chps"></span>/s)<br />
 		<span id="hpm"></span> hum/min (&pound;<span id="chpm"></span>/min)<br />
 		Err/hum rate: <span id="rate"></span><br />
-		&Sigma;<sub>err/hum</sub>(ps) <span id="tps"></span>(&pound;<span id="tcps"></span>/s)<br />
-		&Sigma;<sub>err/hum</sub>(pm) <span id="tpm"></span>(&pound;<span id="tcpm"></span>/min)<br />
+		&Sigma;<sub>err/hum</sub>(ps): <span id="tps"></span>(&pound;<span id="tcps"></span>/s)<br />
+		&Sigma;<sub>err/hum</sub>(pm): <span id="tpm"></span>(&pound;<span id="tcpm"></span>/min)<br />
+		&Sigma;<sub>err/hum</sub>: <span id="sigma"></span>
 	</div><br /><br />
 	<div id="cmt"></div>
 </body>
