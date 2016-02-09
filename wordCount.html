@@ -47,12 +47,18 @@
 		function startTimer(){
 			t0 = new Date().getMinutes()*60+new Date().getSeconds();
 		}
+
 		function stopTimer(){
 			t1 = new Date().getMinutes()*60+new Date().getSeconds();
 			dt = t1-t0;
 			$("#t").innerText = Math.floor(dt/60)+"min "+(dt%60)+"s";
 			fillRes();
 		}
+		
+		function m2d(m){//min to dec
+			return (50*m)/30;
+		}
+
 		function fillRes(){
 			$("#epm").innerText = (err/Math.floor(dt/60)).toPrecision(3);
 			$("#eps").innerText = (err/dt).toPrecision(3);
@@ -65,25 +71,26 @@
 			$("#rate").innerText = (err/hum).toPrecision(3);
 			$("#tps").innerText = (parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText)).toPrecision(3);
 			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toPrecision(3);
-			$("#tcps").innerText = (parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText)).toPrecision(2);
-			$("#tcpm").innerText = (parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText)).toPrecision(2);
+			$("#tcps").innerText = parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText);
+			$("#tcpm").innerText = parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText);
 			$("#sigma").innerText = err+hum;
-			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm", "#sigma"]);
+			$("#mw").innerText = (Math.floor(dt/60)+m2d(dt%60/100))*parseFloat($("#tcpm").innerText);
+			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm", "#sigma", "#mw"]);
 			if($("#eps").innerText>3 || $("#hps").innerText>3) $("#cmt").innerText = "Wow !!";
 			if(err>=100 && err>=hum) $("#cmt").innerHTML = "<b style='color: #400000;'>Errquake !!!</b>";
 			if(hum>=100 && hum>err) $("#cmt").innerHTML = "<b style='color: #400000;'>Humquake !!!</b>";
-			if(err>=200 && err>=hum) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=40>Errquake !!!</marquee></b>";
-			if(hum>=200 && hum>err) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=40>Humquake !!!</marquee></b>";
+			if(err>=200 && err>=hum) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=50>Errquake !!!</marquee></b>";
+			if(hum>=200 && hum>err) $("#cmt").innerHTML = "<b style='color: #800000;'><marquee scrollamount=50>Humquake !!!</marquee></b>";
 			if($("#epm").innerText>300 || $("#hpm").innerText>300) $("#cmt").innerHTML = $("#cmt").innerHTML+"<br /><b style='color: #fc0;'><i>DAMMNN !!!</i></b>";
 			if(err>=300 || hum>=300) $("#cmt").innerHTML = "<b style='color: #c00000;'>Wuut !</b>";
-			if(err>=400 || hum>=400) $("#cmt").innerHTML = "<b style='color: #c00000;'><marquee scrollamount=50>WTF !!</marquee></b>";
+			if(err>=400 || hum>=400) $("#cmt").innerHTML = "<b style='color: #c00000;'><marquee scrollamount=70>WTF !!</marquee></b>";
 			if(err>=500 || hum>=500) $("#cmt").innerHTML = "<b style='color: #f00;'><span>Wait</span>... Wuut !</b>";
 			if(err>=600 && err>=hum) $("#cmt").innerHTML = "<b style='color: #f04000;'>Holly Fucking <i>Err</i>Shit m8 !!!</b>";
 			if(hum>=600 && hum>err) $("#cmt").innerHTML = "<b style='color: #f04000;'>H<i>um</i>olly Fucking Shit m8 !!!</b>";
 			if(err>=600 || hum>=600) $("#cmt").innerHTML = "<b style='color: #f08000;'>Ooh My Gaaad !!!</b>";
 			if(err>=700 || hum>=700) $("#cmt").innerHTML = "<b style='color: #f0c000;'>What The Actual <u>Fuck</u>!</b>";
-			if(err>=1e3 && err>=hum) $("#cmt").innerHTML = "<b style='color: #ff0;'>Err God</b>";
-			if(hum>=1e3 && hum>err) $("#cmt").innerHTML = "<b style='color: #ff0;'>Hum God</b>";
+			if(err>=1e3 && err>=hum) $("#cmt").innerHTML = "<em style='color: #ff0;'>Err God</em>";
+			if(hum>=1e3 && hum>err) $("#cmt").innerHTML = "<em style='color: #ff0;'>Hum God</em>";
 			if(err<=1 || hum<=1)  $("#cmt").innerText = "";
 		}
 		function store(){
@@ -101,12 +108,7 @@
 			localStorage["humCount"] = JSON.stringify(localStorage["humCount"]+", "+toList(dH, "text"));
 			console.info("Err count: "+console.table(dE));
 			console.info("Hum count: "+console.table(dH));
-			/*send = confirm("Would you like to send the data by email ?");
-			if(send){
-				location.href = "mailto: maxieberkmann@gmail.com?subject=CS1870:%20Err/hum%20data%20record&body=Err%0D"+toTxt(dE)+"%0DHum:%0D"+toTxt(dH)+"&from=WordCount@html.w3";
-				sendEmail("zbvd647@live.rhul.ac.uk", "Errs/Hum logs", toList(dE)+"\n"+toList(dH));
-				//if(ActiveXObject) AutoMail("maxieberkmann@gmail", "Errs/Hum log", toList(dE)+"\n"+toList(dH));
-			}*/
+			
 			console.clear();
 			console.info("Err:");
 			list(dE);
@@ -165,35 +167,6 @@
 		function to2Digits(i){
 			return i<10? "0"+i: i;
 		}
-		/* Deprecated features
-		function passiveSave(w, data, proper){
-			window.location = proper? "data:text/html,<style>*{font-family: Calibrie, Neuropol, Verdana;}</style><h1>"+w+"</h1>"+data:"data:text/txt,"+w+": "+data;
-		}
-		function check(data, toHTML){
-			var h = (data==dE)? "Err log": (data==dH? "Hum log": "Log");
-			if(toHTML) passiveSave(h+":", toList(data, "html"), true);
-			else passiveSave(h, toList(dE, "text"));
-		}
-		//http://javascript.keithjoubert.com/send-automatic-email.htm
-		//usage: AutoMail('someone@somewhere.com','Test AutoMail',bodyT,atPath);
-		function AutoMail(sendto,subject,bodytxt,attach){
-			var theApp=new ActiveXObject("Outlook.Application");
-			var theNameSpace=theApp.GetNameSpace("MAPI").CurrentUser, theMailItem=theApp.CreateItem(0);
-			theMailItem.Recipients.Add(sendto);
-			theMailItem.Subject=(subject);
-			theMailItem.Body=(bodytxt);
-			if(attach) theMailItem.Attachments.Add(attach);
-			theMailItem.Send;
-			theNameSpace.Logoff;
-			theApp=null;
-		}
-		
-		function toTxt(arr){
-			var txt = "";
-			for(i=0; i<arr.length; i++) txt+=arr[i]+"%0D";
-			return txt;
-		}
-		*/
 	</script>
 	<style>
 		* {
@@ -230,7 +203,8 @@
 		Err/hum rate: <span id="rate"></span><br />
 		&Sigma;<sub>err/hum</sub>(ps): <span id="tps"></span>(&pound;<span id="tcps"></span>/s)<br />
 		&Sigma;<sub>err/hum</sub>(pm): <span id="tpm"></span>(&pound;<span id="tcpm"></span>/min)<br />
-		&Sigma;<sub>err/hum</sub>: <span id="sigma"></span>
+		&Sigma;<sub>err/hum</sub>: <span id="sigma"></span><br />
+		money wasted: &pound;<span id="mw"></span>
 	</div><br /><br />
 	<div id="cmt"></div>
 </body>
