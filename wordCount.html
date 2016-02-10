@@ -74,7 +74,7 @@
 			$("#tcps").innerText = parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText);
 			$("#tcpm").innerText = parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText);
 			$("#sigma").innerText = err+hum;
-			$("#mw").innerText = (Math.floor(dt/60)+m2d(dt%60/100))*parseFloat($("#tcpm").innerText);
+			$("#mw").innerText = Math.round((Math.floor(dt/60)+m2d(dt%60/100))*parseFloat($("#tcpm").innerText)*100)/100;
 			verif(["#epm", "#eps", "#hpm", "#hps", "#cepm", "#ceps", "#chpm", "#chps", "#rate", "#tps", "#tpm", "#tcps", "#tcpm", "#sigma", "#mw"]);
 			if($("#eps").innerText>3 || $("#hps").innerText>3) $("#cmt").innerText = "Wow !!";
 			if(err>=100 && err>=hum) $("#cmt").innerHTML = "<b style='color: #400000;'>Errquake !!!</b>";
@@ -108,7 +108,12 @@
 			localStorage["humCount"] = JSON.stringify(localStorage["humCount"]+", "+toList(dH, "text"));
 			console.info("Err count: "+console.table(dE));
 			console.info("Hum count: "+console.table(dH));
-			
+			/*send = confirm("Would you like to send the data by email ?");
+			if(send){
+				location.href = "mailto: maxieberkmann@gmail.com?subject=CS1870:%20Err/hum%20data%20record&body=Err%0D"+toTxt(dE)+"%0DHum:%0D"+toTxt(dH)+"&from=WordCount@html.w3";
+				sendEmail("zbvd647@live.rhul.ac.uk", "Errs/Hum logs", toList(dE)+"\n"+toList(dH));
+				//if(ActiveXObject) AutoMail("maxieberkmann@gmail", "Errs/Hum log", toList(dE)+"\n"+toList(dH));
+			}*/
 			console.clear();
 			console.info("Err:");
 			list(dE);
