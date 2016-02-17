@@ -18,7 +18,7 @@
 			else this.node = document.querySelector(selector);
 		}
 		
-		var err = 0, hum = 0, t0 = 0, t1 = 0, dt = 0, cost = 18, dE = new Array(), dH = new Array();//cost per lecture: £0.30/min, .005p/s
+		var err = 0, hum = 0, t0 = 0, t1 = 0, dt = 0, cost = 18, dE = new Array(), dH = new Array(), confReset = false;//cost per lecture: £0.30/min, .005p/s
 		function count(word){
 			if(word=='err'){
 				err++;
@@ -31,6 +31,11 @@
 			$("#hum").innerText = hum;
 			if(t0==0) startTimer();//as an update
 			else stopTimer();
+			if(t0==0 && t1!=0){
+				var t = t0;
+				t0 = t1;
+				t1 = t;
+			}
 		}
 		
 		function keyboardCode(keyStroke){
@@ -60,17 +65,17 @@
 		}
 
 		function fillRes(){
-			$("#epm").innerText = (err/Math.floor(dt/60)).toPrecision(3);
-			$("#eps").innerText = (err/dt).toPrecision(3);
-			$("#hpm").innerText = (hum/Math.floor(dt/60)).toPrecision(3);
-			$("#hps").innerText = (hum/dt).toPrecision(3);
-			$("#ceps").innerText = ($("#eps").innerText*cost/3600).toPrecision(2);
-			$("#cepm").innerText = ($("#epm").innerText*cost/60).toPrecision(2);
-			$("#chps").innerText = ($("#hps").innerText*cost/3600).toPrecision(2);
-			$("#chpm").innerText = ($("#hpm").innerText*cost/60).toPrecision(2);
-			$("#rate").innerText = (err/hum).toPrecision(3);
-			$("#tps").innerText = (parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText)).toPrecision(3);
-			$("#tpm").innerText = (parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText)).toPrecision(3);
+			$("#epm").innerText = err/Math.floor(dt/60);
+			$("#eps").innerText = err/dt;
+			$("#hpm").innerText = hum/Math.floor(dt/60);
+			$("#hps").innerText = hum/dt;
+			$("#ceps").innerText = $("#eps").innerText*cost/3600;
+			$("#cepm").innerText = $("#epm").innerText*cost/60;
+			$("#chps").innerText = $("#hps").innerText*cost/3600;
+			$("#chpm").innerText = $("#hpm").innerText*cost/60;
+			$("#rate").innerText = err/hum;
+			$("#tps").innerText = parseFloat($("#eps").innerText)+parseFloat($("#hps").innerText);
+			$("#tpm").innerText = parseFloat($("#epm").innerText)+parseFloat($("#hpm").innerText);
 			$("#tcps").innerText = parseFloat($("#ceps").innerText)+parseFloat($("#chps").innerText);
 			$("#tcpm").innerText = parseFloat($("#cepm").innerText)+parseFloat($("#chpm").innerText);
 			$("#sigma").innerText = err+hum;
@@ -165,8 +170,8 @@
 		function verif(ids){//verify the value of the elements with the corresponding ids and change into an acceptable value if not already
 			for(i=0; i<ids.length; i++){
 				if($(ids[i]).innerText==Infinity) $(ids[i]).innerText = 0;
-				if($(ids[i]).innerText==NaN) $(ids[i]).innerText = "N/A";
-				if($(ids[i]).innerText.indexOf('.')>-1 && $(ids[i]).innerText.slice($(ids[i]).innerText.indexOf(".")+1, $(ids[i]).innerText.length).length>=3) $(ids[i]).innerText = parseInt($(ids[i]).innerText).toPrecision(2);
+				else if($(ids[i]).innerText==NaN) $(ids[i]).innerText = "N/A";
+				else $(ids[i]).innerText = parseInt($(ids[i]).innerText).toFixed(2);
 			}
 		}
 		function to2Digits(i){
@@ -193,6 +198,65 @@
 		}
 		sub {
 			font-size: 1ex;
+		}
+		
+		/* Smartphones (portrait and landscape) */
+		@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+			
+		}
+		
+		/* Smartphones (landscape) */
+		@media only screen and (min-width: 321px) {
+			
+		}
+		
+		/* Smartphones (portrait) */
+		@media only screen and (max-width: 320px) {
+			
+		}
+		
+		/* iPads (portrait and landscape) */
+		@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+			
+		}
+		
+		/* iPads (landscape) */
+		@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+			
+		}
+		
+		/* iPads (portrait) */
+		@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+			
+		}
+		
+		/* Desktops and laptops */
+		@media only screen and (min-width: 1224px) {
+			
+		}
+		
+		/* Large screens */
+		@media only screen and (min-width: 1824px) {
+			
+		}
+		
+		/* iPhone 4 */
+		@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+			* {
+				font-size: 16px;
+			}
+			#cmt {
+				font-size: 18px;
+				position: absolute;
+				top: 360px;
+			}
+			sub {
+				font-size: 9px;
+			}
+			#res {
+				left: 0;
+				top: 108px;
+			}
 		}
 	</style>
 </head>
