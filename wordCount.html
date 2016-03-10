@@ -136,7 +136,7 @@
 			return to2Digits(d.getHours())+":"+to2Digits(d.getMinutes())+":"+to2Digits(d.getSeconds());
 		}
 		function getD(){//ddMm
-			var m = ["Jan", "Feb", "March", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], d = new Date();
+			var m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], d = new Date();
 			return d.getDate()+m[d.getMonth()];
 		}
 		function sendEmail(to, subject, content, by, cc, bcc){
